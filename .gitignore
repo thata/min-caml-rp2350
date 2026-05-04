@@ -3,6 +3,7 @@
 *.cmo
 *.elf
 test/*.s
+sample/*.s
 ._bcdi/
 ._d/
 myLexer.ml
