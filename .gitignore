@@ -1,0 +1,22 @@
+*.o
+*.cmi
+*.cmo
+*.elf
+test/*.s
+._bcdi/
+._d/
+myLexer.ml
+myParser.ml
+myParser.mli
+min-caml
+main.map
+
+# シンボリックリンクのみなさん
+simm.ml
+virtual.ml
+regAlloc.ml
+libmincaml.S
+emit.ml
+asm.ml
+asm.mli
+
