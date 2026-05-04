@@ -44,6 +44,12 @@ typedef struct {
 
 extern void min_caml_start(char *, char *);
 
+#define MIN_CAML_STACK_SIZE (1024u * 1024u)      // 1MB stack
+#define MIN_CAML_HEAP_SIZE  (4u * 1024u * 1024u) // 4MB heap
+
+static uint8_t min_caml_stack[MIN_CAML_STACK_SIZE] __attribute__((aligned(8)));
+static uint8_t min_caml_heap[MIN_CAML_HEAP_SIZE] __attribute__((aligned(8)));
+
 static void uart_init(void) {
     UART0->CTRL = UART_CTRL_TX_EN | UART_CTRL_RX_EN;
 }
@@ -86,7 +92,7 @@ int main(void) {
 
     uart_puts("Hello from QEMU mps2-an505 Cortex-M33!\n");
 
-    min_caml_start(NULL, NULL);
+    min_caml_start((char *)min_caml_stack, (char *)min_caml_heap);
 
     while (1) {
     }

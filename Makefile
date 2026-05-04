@@ -1,5 +1,5 @@
 # Sumii's Makefile for Min-Caml (for GNU Make)
-# 
+#
 # ack.mlなどのテストプログラムをtest/に用意してmake do_testを実行すると、
 # min-camlとocamlでコンパイル・実行した結果を自動で比較します。
 
@@ -8,6 +8,22 @@ NCSUFFIX = .opt
 CC = gcc
 CFLAGS = -g -O2 -Wall
 OCAMLLDFLAGS=-warn-error -31
+
+TGT_CC = arm-none-eabi-gcc
+TGT_CFLAGS = \
+  -mcpu=cortex-m33 \
+  -mthumb \
+  -mfpu=fpv5-sp-d16 \
+  -mfloat-abi=hard \
+  -ffreestanding \
+  -nostdlib \
+  -Wall \
+  -Wextra \
+  -O2
+TGT_LDFLAGS = \
+  -T linker.ld \
+  -nostdlib \
+  -Wl,-Map=main.map
 
 default: debug-code $(RESULT) do_test
 $(RESULT): debug-code
@@ -33,23 +49,41 @@ adder adder2 funcomp cls-rec cls-bug cls-bug2 cls-reg-bug \
 shuffle spill spill2 spill3 join-stack join-stack2 join-stack3 \
 join-reg join-reg2 non-tail-if non-tail-if2 \
 inprod inprod-rec inprod-loop matmul matmul-flat \
-manyargs
+manyargs 4649
 
 do_test: $(TESTS:%=test/%.cmp)
 
-.PRECIOUS: test/%.s test/% test/%.res test/%.ans test/%.cmp
-TRASH = $(TESTS:%=test/%.s) $(TESTS:%=test/%) $(TESTS:%=test/%.res) $(TESTS:%=test/%.ans) $(TESTS:%=test/%.cmp)
-
 test/%.s: $(RESULT) test/%.ml
 	./$(RESULT) test/$*
-test/%: test/%.s libmincaml.S stub.c
-	$(CC) $(CFLAGS) -m32 $^ -lm -o $@
-test/%.res: test/%
-	$< > $@
+test/%.elf: test/%.s startup.c stub.c libmincaml.S
+	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $^
+test/%.res: test/%.elf
+	qemu-system-arm \
+	  -machine mps2-an505 \
+	  -cpu cortex-m33 \
+	  -m 16M \
+	  -nographic \
+	  -monitor none \
+	  -kernel $<
+
 test/%.ans: test/%.ml
 	ocaml $< > $@
 test/%.cmp: test/%.res test/%.ans
 	diff $^ > $@
+
+sample/%.elf: sample/%.S startup.c stub.c libmincaml.S
+	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $^
+sample/%.res: sample/%.elf
+	qemu-system-arm \
+	  -machine mps2-an505 \
+	  -cpu cortex-m33 \
+	  -m 16M \
+	  -nographic \
+	  -monitor none \
+	  -kernel $<
+
+.PRECIOUS: test/%.s test/% test/%.res test/%.ans test/%.cmp
+TRASH = $(TESTS:%=test/%.s) $(TESTS:%=test/%) $(TESTS:%=test/%.res) $(TESTS:%=test/%.ans) $(TESTS:%=test/%.cmp)
 
 min-caml.html: main.mli main.ml id.ml m.ml s.ml \
 		syntax.ml type.ml parser.mly lexer.mll typing.mli typing.ml kNormal.mli kNormal.ml \
