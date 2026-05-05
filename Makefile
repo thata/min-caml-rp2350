@@ -71,7 +71,9 @@ test/%.ans: test/%.ml
 test/%.cmp: test/%.res test/%.ans
 	diff $^ > $@
 
-sample/%.elf: sample/%.S startup.c stub.c libmincaml.S
+sample/%.s: sample/%.ml
+	./$(RESULT) sample/$*
+sample/%.elf: sample/%.s startup.c stub.c libmincaml.S
 	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $^
 sample/%.res: sample/%.elf
 	qemu-system-arm \
