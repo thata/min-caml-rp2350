@@ -59,13 +59,7 @@ let rec g oc = function (* 命令列のアセンブリ生成 (caml2html: emit_g)
 and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprime) *)
   (* 末尾でなかったら計算結果をdestにセット (caml2html: emit_nontail) *)
   | NonTail(_), Nop -> ()
-  | NonTail(x), Li(i) when -32768 <= i && i < 32768 -> Printf.fprintf oc "\tldr %s, =%d\n" (reg x) i
-  | NonTail(x), Li(i) ->
-      let n = i lsr 16 in
-      let m = i lxor (n lsl 16) in
-      let r = reg x in
-      Printf.fprintf oc "\tlis\t%s, %d\n" r n;
-      Printf.fprintf oc "\tori\t%s, %s, %d\n" r r m
+  | NonTail(x), Li(i) -> Printf.fprintf oc "\tldr %s, =%d\n" (reg x) i
   | NonTail(x), FLi(Id.L(l)) ->
       let s = load_label (reg reg_tmp) l in
       Printf.fprintf oc "%s\tlfd\t%s, 0(%s)\n" s (reg x) (reg reg_tmp)
@@ -73,7 +67,7 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       let s = load_label x y in
       Printf.fprintf oc "%s" s
   | NonTail(x), Mr(y) when x = y -> ()
-  | NonTail(x), Mr(y) -> Printf.fprintf oc "\tmr\t%s, %s\n" (reg x) (reg y)
+  | NonTail(x), Mr(y) -> Printf.fprintf oc "\tmov %s, %s\n" (reg x) (reg y)
   | NonTail(x), Neg(y) -> Printf.fprintf oc "\tneg\t%s, %s\n" (reg x) (reg y)
   | NonTail(x), Add(y, V(z)) -> Printf.fprintf oc "\tadd\t%s, %s, %s\n" (reg x) (reg y) (reg z)
   | NonTail(x), Add(y, C(z)) -> Printf.fprintf oc "\taddi\t%s, %s, %d\n" (reg x) (reg y) z
