@@ -55,6 +55,8 @@ static void uart_init(void) {
 }
 
 static void uart_putc(char c) {
+    while (UART0->STATE & (1u << 0)) {   // TXFULL
+    }
     UART0->DATA = (uint32_t)c;
 }
 
@@ -93,8 +95,6 @@ int min_caml_int_of_float(float f) {
 
 int main(void) {
     uart_init();
-
-    uart_puts("Hello from QEMU mps2-an505 Cortex-M33!\n");
 
     min_caml_start((char *)min_caml_stack, (char *)min_caml_heap);
 
