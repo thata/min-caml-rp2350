@@ -87,6 +87,10 @@ void min_caml_print_newline(void) {
     uart_putc('\n');
 }
 
+int min_caml_int_of_float(float f) {
+    return (int)f;
+}
+
 int main(void) {
     uart_init();
 

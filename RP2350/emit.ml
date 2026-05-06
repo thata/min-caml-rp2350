@@ -2,6 +2,7 @@ open Asm
 
 external gethi : float -> int32 = "gethi"
 external getlo : float -> int32 = "getlo"
+external getf : float -> int32 = "getf"
 
 let stackset = ref S.empty (* すでにSaveされた変数の集合 (caml2html: emit_stackset) *)
 let stackmap = ref [] (* Saveされた変数の、スタックにおける位置 (caml2html: emit_stackmap) *)
@@ -32,8 +33,8 @@ let reg r =
 let load_label r label =
   let r' = reg r in
   Printf.sprintf
-    "\tlis\t%s, ha16(%s)\n\taddi\t%s, %s, lo16(%s)\n"
-    r' label r' r' label
+    "\tldr %s, =%s\n"
+    r' label
 
 (* 関数呼び出しのために引数を並べ替える(register shuffling) (caml2html: emit_shuffle) *)
 let rec shuffle sw xys =
@@ -62,7 +63,8 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
   | NonTail(x), Li(i) -> Printf.fprintf oc "\tldr %s, =%d\n" (reg x) i
   | NonTail(x), FLi(Id.L(l)) ->
       let s = load_label (reg reg_tmp) l in
-      Printf.fprintf oc "%s\tlfd\t%s, 0(%s)\n" s (reg x) (reg reg_tmp)
+      Printf.fprintf oc "%s" s;
+      Printf.fprintf oc "\tvldr.32 %s, [%s]\n" (reg x) (reg reg_tmp)
   | NonTail(x), SetL(Id.L(y)) ->
       let s = load_label x y in
       Printf.fprintf oc "%s" s
@@ -256,17 +258,18 @@ let h oc { name = Id.L(x); args = _; fargs = _; body = e; ret = _ } =
 let f oc (Prog(data, fundefs, e)) =
   Format.eprintf "generating assembly...@.";
   if data <> [] then
-    (Printf.fprintf oc "\t.data\n\t.literal8\n";
+    (Printf.fprintf oc "\t.data\n";
      List.iter
        (fun (Id.L(x), d) ->
-         Printf.fprintf oc "\t.align 3\n";
+         Printf.fprintf oc "\t.align 2\n";
          Printf.fprintf oc "%s:\t # %f\n" x d;
-         Printf.fprintf oc "\t.long\t%ld\n" (gethi d);
-         Printf.fprintf oc "\t.long\t%ld\n" (getlo d))
+         Printf.fprintf oc "\t.long\t%ld\n" (getf d))
        data);
   Printf.fprintf oc "\t.text\n";
   Printf.fprintf oc "\t.syntax unified\n";
   Printf.fprintf oc "\t.thumb\n";
+  Printf.fprintf oc "\t.fpu fpv5-sp-d16\n";
+  Printf.fprintf oc "\t.align 2\n";
   Printf.fprintf oc "\t.globl min_caml_start\n";
   List.iter (fun fundef -> h oc fundef) fundefs;
   Printf.fprintf oc "min_caml_start: # main entry point\n";

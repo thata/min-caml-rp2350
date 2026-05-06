@@ -46,7 +46,7 @@ let seq(e1, e2) = Let((Id.gentmp Type.Unit, Type.Unit), e1, e2)
 (* 汎用レジスタのうちのR0からR9を使用（R10はMinCamlスタック、R11はMinCamlヒープに用いる） *)
 let regs =
   [| "%r0"; "%r1"; "%r3"; "%r4"; "%r5"; "%r6"; "%r7"; "%r8"; "%r9" |]
-let fregs = Array.init 32 (fun i -> Printf.sprintf "%%f%d" i)
+let fregs = Array.init 32 (fun i -> Printf.sprintf "%%s%d" i)
 let allregs = Array.to_list regs
 let allfregs = Array.to_list fregs
 let reg_cl = regs.(Array.length regs - 1) (* closure address (caml2html: sparcasm_regcl) *)
