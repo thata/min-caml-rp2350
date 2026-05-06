@@ -275,7 +275,8 @@ let f oc (Prog(data, fundefs, e)) =
   Printf.fprintf oc "min_caml_start: # main entry point\n";
 
   (* callee-saved レジスタと LR を通常スタックへ退避 *)
-  Printf.fprintf oc "\tstmdb sp!, {r4-r11, lr}\n";
+  (* 8バイトアラインに合わせるため、本来は不要な r12 退避する *)
+  Printf.fprintf oc "\tstmdb sp!, {r4-r11, r12, lr}\n";
 
   (* r10 = sp, r11 = hp *)
   Printf.fprintf oc "\tmov %s, r0\n" (reg reg_sp);
@@ -294,7 +295,7 @@ let f oc (Prog(data, fundefs, e)) =
   Printf.fprintf oc "#\tmain program ends\n";
 
   (* callee-saved レジスタと LR を通常スタックから復帰 *)
-  Printf.fprintf oc "\tldmia sp!, {r4-r11, lr}\n";
+  Printf.fprintf oc "\tldmia sp!, {r4-r11, r12, lr}\n";
 
   Printf.fprintf oc "\tbx lr\n";
   (*
