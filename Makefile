@@ -82,6 +82,8 @@ sample/%.res: sample/%.elf
 	  -m 16M \
 	  -nographic \
 	  -monitor none \
+	  -d in_asm \
+	  -D logfile.txt \
 	  -kernel $<
 
 .PRECIOUS: test/%.s test/% test/%.res test/%.ans test/%.cmp
