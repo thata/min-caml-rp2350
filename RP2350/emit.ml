@@ -182,21 +182,22 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       g'_args oc [] ys zs;
       Printf.fprintf oc "\tb\t%s\n" x
   | NonTail(a), CallCls(x, ys, zs) ->
-      Printf.fprintf oc "\tmflr\t%s\n" (reg reg_tmp);
+      Printf.fprintf oc "\tmov %s, lr\n" (reg reg_tmp);
       g'_args oc [(x, reg_cl)] ys zs;
       let ss = stacksize () in
-      Printf.fprintf oc "\tstw\t%s, %d(%s)\n" (reg reg_tmp) (ss - 4) (reg reg_sp);
+      Printf.fprintf oc "\tstr %s, [%s, #%d]\n" (reg reg_tmp) (reg reg_sp) (ss - 4);
       Printf.fprintf oc "\tadd %s, %s, #%d\n" (reg reg_sp) (reg reg_sp) ss;
-      Printf.fprintf oc "\tlwz\t%s, 0(%s)\n" (reg reg_tmp) (reg reg_cl);
-      Printf.fprintf oc "\tmtctr\t%s\n" (reg reg_tmp);
-      Printf.fprintf oc "\tbctrl\n";
-      Printf.fprintf oc "\tsubi\t%s, %s, %d\n" (reg reg_sp) (reg reg_sp) ss;
-      Printf.fprintf oc "\tlwz\t%s, %d(%s)\n" (reg reg_tmp) (ss - 4) (reg reg_sp);
+      Printf.fprintf oc "\tldr %s, [%s]\n" (reg reg_tmp) (reg reg_cl);
+      Printf.fprintf oc "\tblx %s\n" (reg reg_tmp);
+      (* Printf.fprintf oc "\tmtctr\t%s\n" (reg reg_tmp);
+      Printf.fprintf oc "\tbctrl\n"; *)
+      Printf.fprintf oc "\tsub %s, %s, %d\n" (reg reg_sp) (reg reg_sp) ss;
+      Printf.fprintf oc "\tldr %s, [%s, #%d]\n" (reg reg_tmp) (reg reg_sp) (ss - 4);
       if List.mem a allregs && a <> regs.(0) then
         Printf.fprintf oc "\tmov %s, %s\n" (reg a) (reg regs.(0))
       else if List.mem a allfregs && a <> fregs.(0) then
-        Printf.fprintf oc "\tfmr\t%s, %s\n" (reg a) (reg fregs.(0));
-      Printf.fprintf oc "\tmtlr\t%s\n" (reg reg_tmp)
+        Printf.fprintf oc "\tvmov %s, %s\n" (reg a) (reg fregs.(0));
+      Printf.fprintf oc "\tmov lr, %s\n" (reg reg_tmp)
   | (NonTail(a), CallDir(Id.L(x), ys, zs)) ->
       Printf.fprintf oc "\tmov %s, lr\n" (reg reg_tmp);
       g'_args oc [] ys zs;
@@ -252,6 +253,7 @@ and g'_args oc x_reg_cl ys zs =
     (shuffle reg_fsw zfrs)
 
 let h oc { name = Id.L(x); args = _; fargs = _; body = e; ret = _ } =
+  Printf.fprintf oc "\t.thumb_func\n";
   Printf.fprintf oc "%s:\n" x;
   stackset := S.empty;
   stackmap := [];
