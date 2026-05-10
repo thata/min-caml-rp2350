@@ -72,7 +72,7 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
   | NonTail(x), Mr(y) -> Printf.fprintf oc "\tmov %s, %s\n" (reg x) (reg y)
   | NonTail(x), Neg(y) -> Printf.fprintf oc "\tneg\t%s, %s\n" (reg x) (reg y)
   | NonTail(x), Add(y, V(z)) -> Printf.fprintf oc "\tadd\t%s, %s, %s\n" (reg x) (reg y) (reg z)
-  | NonTail(x), Add(y, C(z)) -> Printf.fprintf oc "\taddi\t%s, %s, %d\n" (reg x) (reg y) z
+  | NonTail(x), Add(y, C(z)) -> Printf.fprintf oc "\tadd %s, %s, #%d\n" (reg x) (reg y) z
   | NonTail(x), Sub(y, V(z)) -> Printf.fprintf oc "\tsub %s, %s, %s\n" (reg x) (reg y) (reg z)
   | NonTail(x), Sub(y, C(z)) -> Printf.fprintf oc "\tsub %s, %s, %d\n" (reg x) (reg y) z
   | NonTail(x), Slw(y, V(z)) -> Printf.fprintf oc "\tslw\t%s, %s, %s\n" (reg x) (reg y) (reg z)
@@ -186,14 +186,14 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       g'_args oc [(x, reg_cl)] ys zs;
       let ss = stacksize () in
       Printf.fprintf oc "\tstw\t%s, %d(%s)\n" (reg reg_tmp) (ss - 4) (reg reg_sp);
-      Printf.fprintf oc "\taddi\t%s, %s, %d\n" (reg reg_sp) (reg reg_sp) ss;
+      Printf.fprintf oc "\tadd %s, %s, #%d\n" (reg reg_sp) (reg reg_sp) ss;
       Printf.fprintf oc "\tlwz\t%s, 0(%s)\n" (reg reg_tmp) (reg reg_cl);
       Printf.fprintf oc "\tmtctr\t%s\n" (reg reg_tmp);
       Printf.fprintf oc "\tbctrl\n";
       Printf.fprintf oc "\tsubi\t%s, %s, %d\n" (reg reg_sp) (reg reg_sp) ss;
       Printf.fprintf oc "\tlwz\t%s, %d(%s)\n" (reg reg_tmp) (ss - 4) (reg reg_sp);
       if List.mem a allregs && a <> regs.(0) then
-        Printf.fprintf oc "\tmr\t%s, %s\n" (reg a) (reg regs.(0))
+        Printf.fprintf oc "\tmov %s, %s\n" (reg a) (reg regs.(0))
       else if List.mem a allfregs && a <> fregs.(0) then
         Printf.fprintf oc "\tfmr\t%s, %s\n" (reg a) (reg fregs.(0));
       Printf.fprintf oc "\tmtlr\t%s\n" (reg reg_tmp)
@@ -207,7 +207,7 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       Printf.fprintf oc "\tsub %s, %s, #%d\n" (reg reg_sp) (reg reg_sp) ss;
       Printf.fprintf oc "\tldr %s, [%s, #%d]\n" (reg reg_tmp) (reg reg_sp) (ss - 4);
       if List.mem a allregs && a <> regs.(0) then
-        Printf.fprintf oc "\tmr\t%s, %s\n" (reg a) (reg regs.(0))
+        Printf.fprintf oc "\tmov %s, %s\n" (reg a) (reg regs.(0))
       else if List.mem a allfregs && a <> fregs.(0) then
         Printf.fprintf oc "\tfmr\t%s, %s\n" (reg a) (reg fregs.(0));
       Printf.fprintf oc "\tmov lr, %s\n" (reg reg_tmp)
