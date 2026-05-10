@@ -6,6 +6,12 @@ MEMORY
     RAM   (rwx) : ORIGIN = 0x80000000, LENGTH = 8M
 }
 
+PHDRS
+{
+    text PT_LOAD FLAGS(5);
+    data PT_LOAD FLAGS(6);
+}
+
 _estack = ORIGIN(RAM) + LENGTH(RAM);
 
 SECTIONS
@@ -13,7 +19,7 @@ SECTIONS
     .isr_vector :
     {
         KEEP(*(.isr_vector))
-    } > FLASH
+    } > FLASH :text
 
     .text :
     {
@@ -21,7 +27,7 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = .;
-    } > FLASH
+    } > FLASH :text
 
     .data : AT(_etext)
     {
@@ -30,11 +36,11 @@ SECTIONS
         *(.data*)
         . = ALIGN(4);
         _edata = .;
-    } > RAM
+    } > RAM :data
 
     _sidata = LOADADDR(.data);
 
-    .bss :
+    .bss (NOLOAD) :
     {
         . = ALIGN(4);
         _sbss = .;
@@ -42,5 +48,5 @@ SECTIONS
         *(COMMON)
         . = ALIGN(4);
         _ebss = .;
-    } > RAM
+    } > RAM :NONE
 }

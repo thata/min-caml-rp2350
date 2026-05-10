@@ -55,8 +55,8 @@ do_test: $(TESTS:%=test/%.cmp)
 
 test/%.s: $(RESULT) test/%.ml
 	./$(RESULT) test/$*
-test/%.elf: test/%.s startup.c stub.c libmincaml.S
-	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $^
+test/%.elf: test/%.s startup.c stub.c libmincaml.S linker.ld
+	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $< startup.c stub.c libmincaml.S
 test/%.res: test/%.elf
 	qemu-system-arm \
 	  -machine mps2-an505 \
@@ -73,8 +73,8 @@ test/%.cmp: test/%.res test/%.ans
 
 sample/%.s: sample/%.ml
 	./$(RESULT) sample/$*
-sample/%.elf: sample/%.s startup.c stub.c libmincaml.S
-	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $^
+sample/%.elf: sample/%.s startup.c stub.c libmincaml.S linker.ld
+	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $< startup.c stub.c libmincaml.S
 sample/%.res: sample/%.elf
 	qemu-system-arm \
 	  -machine mps2-an505 \

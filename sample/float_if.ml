@@ -34,8 +34,8 @@ test2 a b;
 print_newline ();
 
 (* QEMUのバグ(?)回避のためのコード *)
-if a < b then print_int 1 else print_int 0;
-print_newline ();
+(* if a < b then print_int 1 else print_int 0;
+print_newline (); *)
 
 test3 a b;
 print_newline ();

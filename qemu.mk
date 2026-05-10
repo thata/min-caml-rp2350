@@ -20,8 +20,8 @@ LDFLAGS = \
 test/%.o: test/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-test/%.elf: test/%.o startup.c stub.c libmincaml.S
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+test/%.elf: test/%.o startup.c stub.c libmincaml.S linker.ld
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< startup.c stub.c libmincaml.S
 
 test/%.res:	test/%.elf
 	qemu-system-arm \
