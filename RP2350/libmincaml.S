@@ -48,3 +48,12 @@ min_caml_int_of_float:
 	vcvt.s32.f32 s0, s0
 	vmov r0, s0
 	bx lr
+
+// float_of_int
+// r0: int value
+// return: float value
+	.globl min_caml_float_of_int
+min_caml_float_of_int:
+	vmov s0, r0
+	vcvt.f32.s32 s0, s0
+	bx lr

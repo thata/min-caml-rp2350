@@ -86,6 +86,19 @@ sample/%.res: sample/%.elf
 	  -D logfile.txt \
 	  -kernel $<
 
+shootout/%.s: $(RESULT) shootout/%.ml
+	./$(RESULT) shootout/$*
+shootout/%.elf: shootout/%.s startup.c stub.c libmincaml.S linker.ld
+	$(TGT_CC) $(TGT_CFLAGS) $(TGT_LDFLAGS) -o $@ $< startup.c stub.c libmincaml.S
+shootout/%.res: shootout/%.elf
+	qemu-system-arm \
+	  -machine mps2-an505 \
+	  -cpu cortex-m33 \
+	  -m 16M \
+	  -nographic \
+	  -monitor none \
+	  -kernel $<
+
 .PRECIOUS: test/%.s test/% test/%.res test/%.ans test/%.cmp
 TRASH = $(TESTS:%=test/%.s) $(TESTS:%=test/%) $(TESTS:%=test/%.res) $(TESTS:%=test/%.ans) $(TESTS:%=test/%.cmp)
 
