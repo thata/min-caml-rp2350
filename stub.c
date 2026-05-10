@@ -89,6 +89,43 @@ void min_caml_print_newline(void) {
     uart_putc('\n');
 }
 
+float min_caml_abs_float(float x) {
+    return (x < 0.0f) ? -x : x;
+}
+
+float min_caml_sqrt(float x) {
+    if (x < 0.0f) {
+        return 0.0f; // or handle error as needed
+    }
+    float guess = x / 2.0f;
+    for (int i = 0; i < 10; i++) { // simple Newton's method
+        guess = (guess + x / guess) / 2.0f;
+    }
+    return guess;
+}
+
+float min_caml_cos(float x) {
+    // Simple Taylor series approximation for cos(x)
+    float term = 1.0f;
+    float sum = term;
+    for (int n = 1; n < 10; n++) {
+        term *= -x * x / (2 * n * (2 * n - 1));
+        sum += term;
+    }
+    return sum;
+}
+
+float min_caml_sin(float x) {
+    // Simple Taylor series approximation for sin(x)
+    float term = x;
+    float sum = term;
+    for (int n = 1; n < 10; n++) {
+        term *= -x * x / (2 * n * (2 * n + 1));
+        sum += term;
+    }
+    return sum;
+}
+
 int main(void) {
     uart_init();
 
