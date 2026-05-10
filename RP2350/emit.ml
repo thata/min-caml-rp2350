@@ -176,8 +176,8 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
   (* 関数呼び出しの仮想命令の実装 (caml2html: emit_call) *)
   | Tail, CallCls(x, ys, zs) -> (* 末尾呼び出し (caml2html: emit_tailcall) *)
       g'_args oc [(x, reg_cl)] ys zs;
-      Printf.fprintf oc "\tlwz\t%s, 0(%s)\n" (reg reg_sw) (reg reg_cl);
-      Printf.fprintf oc "\tmtctr\t%s\n\tbctr\n" (reg reg_sw);
+      Printf.fprintf oc "\tldr %s, [%s]\n" (reg reg_sw) (reg reg_cl);
+      Printf.fprintf oc "\tblx %s\n" (reg reg_sw);
   | Tail, CallDir(Id.L(x), ys, zs) -> (* 末尾呼び出し *)
       g'_args oc [] ys zs;
       Printf.fprintf oc "\tb\t%s\n" x
