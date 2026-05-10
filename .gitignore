@@ -21,3 +21,11 @@ emit.ml
 asm.ml
 asm.mli
 
+# その他
+bytemark/Makefile
+min-rt/globals.s
+shootout/Makefile
+test/manyargs.ml
+test/toomanyargs.ml
+logfile.txt
+
