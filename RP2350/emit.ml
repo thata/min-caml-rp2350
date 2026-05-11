@@ -226,7 +226,7 @@ and g'_tail_if oc e1 e2 b bn =
 and g'_non_tail_if oc dest e1 e2 b bn =
   let b_else = Id.genid (b ^ "_else") in
   let b_cont = Id.genid (b ^ "_cont") in
-  Printf.fprintf oc "\t% s\tcr7, %s\n" bn b_else;
+  Printf.fprintf oc "\t%s %s\n" bn b_else;
   let stackset_back = !stackset in
   g oc (dest, e1);
   let stackset1 = !stackset in
