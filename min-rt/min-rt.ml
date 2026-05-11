@@ -1140,23 +1140,33 @@ in
   (
    let red = int_of_float rgb.(0) in
    let red = if red > 255 then 255 else red in
-   print_byte red;
+   (* print_byte red; *)
+   print_int red;
+   print_byte 32;
 
    let green = int_of_float rgb.(1) in
    let green = if green > 255 then 255 else green in
-   print_byte green;
+   (* print_byte green; *)
+   print_int green;
+   print_byte 32;
 
    let blue = int_of_float rgb.(2) in
    let blue = if blue > 255 then 255 else blue in
-   print_byte blue
+   (* print_byte blue *)
+   print_int blue;
+   print_byte 32
   )
 in
 
 (*MINCAML*)let rec write_ppm_header _ =
 (*NOMINCAML let write_ppm_header _ =*)
   (
+    (* P6形式 => P3形式 *)
     print_byte 80; (* 'P' *)
+    print_byte (48 + 3); (* 48 = '0' *)
+    (*
     print_byte (48 + 6); (* 48 = '0' *)
+    *)
     print_byte 10;
     print_int size.(0);
     print_byte 32;
