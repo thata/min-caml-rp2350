@@ -41,6 +41,8 @@ typedef struct {
 #define UART0 ((UART *)UART0_BASE)
 #define UART_CTRL_TX_EN (1u << 0)
 #define UART_CTRL_RX_EN (1u << 1)
+#define UART_STATE_TXFULL (1u << 0)
+#define UART_STATE_RXFULL (1u << 1)
 
 extern void min_caml_start(char *, char *);
 
@@ -55,9 +57,15 @@ static void uart_init(void) {
 }
 
 static void uart_putc(char c) {
-    while (UART0->STATE & (1u << 0)) {   // TXFULL
+    while (UART0->STATE & UART_STATE_TXFULL) {
     }
     UART0->DATA = (uint32_t)c;
+}
+
+static char uart_getc(void) {
+    while (!(UART0->STATE & UART_STATE_RXFULL)) {
+    }
+    return (char)(UART0->DATA & 0xff);
 }
 
 static void uart_puts(const char *s) {
@@ -136,5 +144,12 @@ int main(void) {
     min_caml_start((char *)min_caml_stack, (char *)min_caml_heap);
 
     while (1) {
+        char c = uart_getc();
+
+        if (c == '\r') {
+            uart_putc('\n');
+        }
+
+        uart_putc(c);
     }
 }
