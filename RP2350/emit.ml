@@ -81,8 +81,8 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
   | NonTail(_), Stw(x, y, V(z)) -> Printf.fprintf oc "\tstr %s, [%s, %s]\n" (reg x) (reg y) (reg z)
   | NonTail(_), Stw(x, y, C(z)) -> Printf.fprintf oc "\tstr %s, [%s, %d]\n" (reg x) (reg y) z
   | NonTail(x), FMr(y) when x = y -> ()
-  | NonTail(x), FMr(y) -> Printf.fprintf oc "\tfmr\t%s, %s\n" (reg x) (reg y)
-  | NonTail(x), FNeg(y) -> Printf.fprintf oc "\tfneg\t%s, %s\n" (reg x) (reg y)
+  | NonTail(x), FMr(y) -> Printf.fprintf oc "\tvmov %s, %s\n" (reg x) (reg y)
+  | NonTail(x), FNeg(y) -> Printf.fprintf oc "\tvneg.f32 %s, %s\n" (reg x) (reg y)
   | NonTail(x), FAdd(y, z) -> Printf.fprintf oc "\tvadd.f32 %s, %s, %s\n" (reg x) (reg y) (reg z)
   | NonTail(x), FSub(y, z) -> Printf.fprintf oc "\tvsub.f32 %s, %s, %s\n" (reg x) (reg y) (reg z)
   | NonTail(x), FMul(y, z) -> Printf.fprintf oc "\tvmul.f32 %s, %s, %s\n" (reg x) (reg y) (reg z)
@@ -155,28 +155,30 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       Printf.fprintf oc "\tvmrs APSR_nzcv, FPSCR\n";
       g'_tail_if oc e1 e2 "ble" "bgt"
   | NonTail(z), IfEq(x, V(y), e1, e2) ->
-      Printf.fprintf oc "\tcmpw\tcr7, %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tcmp %s, %s\n" (reg x) (reg y);
       g'_non_tail_if oc (NonTail(z)) e1 e2 "beq" "bne"
   | NonTail(z), IfEq(x, C(y), e1, e2) ->
       Printf.fprintf oc "\tcmp %s, %d\n" (reg x) y;
       g'_non_tail_if oc (NonTail(z)) e1 e2 "beq" "bne"
   | NonTail(z), IfLE(x, V(y), e1, e2) ->
-      Printf.fprintf oc "\tcmpw\tcr7, %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tcmp %s, %s\n" (reg x) (reg y);
       g'_non_tail_if oc (NonTail(z)) e1 e2 "ble" "bgt"
   | NonTail(z), IfLE(x, C(y), e1, e2) ->
       Printf.fprintf oc "\tcmp %s, %d\n" (reg x) y;
       g'_non_tail_if oc (NonTail(z)) e1 e2 "ble" "bgt"
   | NonTail(z), IfGE(x, V(y), e1, e2) ->
-      Printf.fprintf oc "\tcmpw\tcr7, %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tcmp %s, %s\n" (reg x) (reg y);
       g'_non_tail_if oc (NonTail(z)) e1 e2 "bge" "blt"
   | NonTail(z), IfGE(x, C(y), e1, e2) ->
       Printf.fprintf oc "\tcmp %s, %d\n" (reg x) y;
       g'_non_tail_if oc (NonTail(z)) e1 e2 "bge" "blt"
   | NonTail(z), IfFEq(x, y, e1, e2) ->
-      Printf.fprintf oc "\tfcmpu\tcr7, %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tvcmp.f32 %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tvmrs APSR_nzcv, FPSCR\n";
       g'_non_tail_if oc (NonTail(z)) e1 e2 "beq" "bne"
   | NonTail(z), IfFLE(x, y, e1, e2) ->
-      Printf.fprintf oc "\tfcmpu\tcr7, %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tvcmp.f32 %s, %s\n" (reg x) (reg y);
+      Printf.fprintf oc "\tvmrs APSR_nzcv, FPSCR\n";
       g'_non_tail_if oc (NonTail(z)) e1 e2 "ble" "bgt"
   (* 関数呼び出しの仮想命令の実装 (caml2html: emit_call) *)
   | Tail, CallCls(x, ys, zs) -> (* 末尾呼び出し (caml2html: emit_tailcall) *)
@@ -215,7 +217,7 @@ and g' oc = function (* 各命令のアセンブリ生成 (caml2html: emit_gprim
       if List.mem a allregs && a <> regs.(0) then
         Printf.fprintf oc "\tmov %s, %s\n" (reg a) (reg regs.(0))
       else if List.mem a allfregs && a <> fregs.(0) then
-        Printf.fprintf oc "\tfmr\t%s, %s\n" (reg a) (reg fregs.(0));
+        Printf.fprintf oc "\tvmov %s, %s\n" (reg a) (reg fregs.(0));
       Printf.fprintf oc "\tmov lr, %s\n" (reg reg_tmp)
 and g'_tail_if oc e1 e2 b bn =
   let b_else = Id.genid (b ^ "_else") in
