@@ -126,6 +126,10 @@ float min_caml_sin(float x) {
     return sum;
 }
 
+int min_caml_truncate(float x) {
+    return (int)x;
+}
+
 int main(void) {
     uart_init();
 
