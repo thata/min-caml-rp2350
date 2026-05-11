@@ -22,8 +22,8 @@ ppmdiff: ppm.ml diff.ml
 %.mincaml.ppm: %.sld min-rt.min-caml
 	time ./min-rt.min-caml < $< > $@.tmp
 	mv $@.tmp $@
-min-rt.min-caml: min-rt.s globals.s ../libmincaml.S ../stub.c
-	arm-none-eabi-gcc -mcpu=cortex-m33 -mthumb -mfpu=fpv5-sp-d16 -mfloat-abi=hard -ffreestanding -nostdlib -Wall -Wextra -O2 -T linker.ld -nostdlib -Wl,-Map=main.map $^ -o min-rt.min-caml
+min-rt.min-caml: min-rt.s globals.s ../startup.c ../libmincaml.S ../stub.c ../linker.ld
+	arm-none-eabi-gcc -mcpu=cortex-m33 -mthumb -mfpu=fpv5-sp-d16 -mfloat-abi=hard -ffreestanding -nostdlib -Wall -Wextra -O2 -T ../linker.ld -nostdlib -Wl,-Map=main.map $(filter-out ../linker.ld,$^) -o min-rt.min-caml
 min-rt.s: min-rt.ml ../min-caml
 	../min-caml -inline 100 min-rt
 
