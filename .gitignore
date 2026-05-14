@@ -11,6 +11,7 @@ myParser.ml
 myParser.mli
 min-caml
 main.map
+firmware/build/
 
 # シンボリックリンクのみなさん
 simm.ml
