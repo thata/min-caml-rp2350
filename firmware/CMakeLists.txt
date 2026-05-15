@@ -13,6 +13,7 @@ pico_sdk_init()
 
 add_executable(min_caml_firmware
     src/min-caml-start.s
+    src/globals.s
     src/main.c
 )
 

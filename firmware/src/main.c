@@ -25,7 +25,6 @@ int main(void) {
     gpio_init(METRO_LED_PIN);
     gpio_set_dir(METRO_LED_PIN, GPIO_OUT);
 
-
     // LED を点滅させながら 10 秒待機する
     for (int i = 0; i < 10; i++) {
         gpio_put(METRO_LED_PIN, 1);
