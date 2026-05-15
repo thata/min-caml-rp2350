@@ -25,16 +25,19 @@ int main(void) {
     gpio_init(METRO_LED_PIN);
     gpio_set_dir(METRO_LED_PIN, GPIO_OUT);
 
-    while (true) {
+
+    // LED を点滅させながら 10 秒待機する
+    for (int i = 0; i < 10; i++) {
         gpio_put(METRO_LED_PIN, 1);
-        puts("LED on");
-        sleep_ms(1000);
+        sleep_ms(500);
 
         gpio_put(METRO_LED_PIN, 0);
-        puts("LED off");
-        sleep_ms(1000);
-
-        min_caml_start((char *)min_caml_stack, (char *)min_caml_heap);
-        printf("\n");
+        sleep_ms(500);
     }
+    gpio_put(METRO_LED_PIN, 1);
+
+    // MinCaml のスタート関数を呼び出す
+    min_caml_start((char *)min_caml_stack, (char *)min_caml_heap);
+
+    while (1) {}
 }
