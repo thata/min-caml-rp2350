@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_executable(min_caml_firmware
-    src/fib.s
+    src/min-caml-start.s
     src/main.c
 )
 
