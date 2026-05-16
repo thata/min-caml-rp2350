@@ -33,18 +33,13 @@ int min_caml_read_int(void) {
     return n;
 }
 
-float min_caml_read_float(void) {
-    float x;
-    scanf("%f", &x);
-    return x;
-}
-
-float min_caml_abs_float(float x) {
-    return (x < 0.0f) ? -x : x;
-}
-
-int min_caml_truncate(float x) {
-    return (int)x;
+int min_caml_read_byte(void) {
+    int c = getchar();
+    if (c != EOF) {
+        return c & 0xff;
+    } else {
+        return -1; // EOF
+    }
 }
 
 int main(void) {
