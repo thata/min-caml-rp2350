@@ -19,6 +19,34 @@ void min_caml_print_int(int n) {
     printf("%d", n);
 }
 
+void min_caml_print_byte(int b) {
+    printf("%c", (char)(b & 0xff));
+}
+
+void min_caml_print_newline(void) {
+    printf("\n");
+}
+
+int min_caml_read_int(void) {
+    int n;
+    scanf("%d", &n);
+    return n;
+}
+
+float min_caml_read_float(void) {
+    float x;
+    scanf("%f", &x);
+    return x;
+}
+
+float min_caml_abs_float(float x) {
+    return (x < 0.0f) ? -x : x;
+}
+
+int min_caml_truncate(float x) {
+    return (int)x;
+}
+
 int main(void) {
     stdio_init_all();
 
