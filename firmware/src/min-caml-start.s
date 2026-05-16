@@ -30762,8 +30762,8 @@ min_caml_start: # main entry point
 	mov r10, r0
 	mov r11, r1
 #	main program starts
-	ldr r0, =10
-	ldr r1, =10
+	ldr r0, =256
+	ldr r1, =256
 	ldr r3, =0
 	movw r4, #:lower16:min_caml_size
 	movt r4, #:upper16:min_caml_size
